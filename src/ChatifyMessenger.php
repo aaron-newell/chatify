@@ -7,6 +7,7 @@ use Chatify\Http\Models\Favorite;
 use Pusher\Pusher;
 use Illuminate\Support\Facades\Auth;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class ChatifyMessenger
 {
@@ -122,6 +123,7 @@ class ChatifyMessenger
             $ext = pathinfo($attachment, PATHINFO_EXTENSION);
             $attachment_type = in_array($ext,$this->getAllowedImages()) ? 'image' : 'file';
         }
+        $uniqueID = DB::table('users')->select('unique_id')->where('id', $msg->to_id)->first();
 
         return [
             'id' => $msg->id,
@@ -133,6 +135,7 @@ class ChatifyMessenger
             'fullTime' => $msg->created_at,
             'viewType' => ($msg->from_id == Auth::user()->id) ? 'sender' : 'default',
             'seen' => $msg->seen,
+            'unique_id' => $uniqueID->unique_id,
         ];
     }
 
@@ -166,6 +169,11 @@ class ChatifyMessenger
      * @return void
      */
     public function newMessage($data){
+        $uniqueID = DB::table('users')->select('unique_id')->where('id', $data['to_id'])->first();
+        $uID = $uniqueID->unique_id;
+        if(IS_NULL($uID)){
+            $uID = "test";
+        }
         $message = new Message();
         $message->id = $data['id'];
         $message->type = $data['type'];
@@ -173,6 +181,7 @@ class ChatifyMessenger
         $message->to_id = $data['to_id'];
         $message->body = $data['body'];
         $message->attachment = $data['attachment'];
+        $message->unique_id = $uniqueID->unique_id;
         $message->save();
     }
 
