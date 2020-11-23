@@ -18,7 +18,7 @@ class ChatifyMessenger
      * @var
      */
     public static $allowed_images = array('png','jpg','jpeg','gif');
-    public static $allowed_files  = array('zip','rar','txt');
+    public static $allowed_files  = array('zip','rar','txt','xlsx','pdf','docx');
 
     /**
      * This method returns the allowed image extensions
